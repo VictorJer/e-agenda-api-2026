@@ -1,5 +1,7 @@
 using eAgenda.Aplicacao.Modulos.ModuloContato;
+using eAgenda.WebApi.Compartilhado;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace eAgenda.WebApi.Features.Contatos;
 
@@ -31,31 +33,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
         var result = servicoContato.Cadastrar(dto);
 
         if (result.IsFailed)
-        {
-            if (result.HasError(e =>
-                e.Message.Equals("Já existe um contato com este telefone.") ||
-                e.Message.Equals("Já existe um contato com este email.")
-            )
-            )
-            {
-                return Problem(
-                    statusCode: StatusCodes.Status409Conflict,
-                    detail: result.Errors.First().Message,
-                    title: "Conflito",
-                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
-                );
-            }
-
-            ValidationProblemDetails problemDetails = new()
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = result.Errors.First().Message
-            };
-
-            return ValidationProblem(problemDetails);
-
-            // return BadRequest();
-        }
+            return this.ParaErroDaApi(result);
 
 
         var res = new CadastrarContatoResponse(result.Value);
@@ -93,9 +71,9 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
         var result = servicoContato.Editar(dto);
 
         if (result.IsFailed)
-            return NotFound(id);
+            return this.ParaErroDaApi(result);
 
-        return CreatedAtAction(nameof(SelecionarPorId), new { id }, req);
+        return NoContent();
     }
 
 

@@ -6,6 +6,7 @@
 
 # @name cadastrarContato
 
+### Cadastrar
 POST {{baseUrl}}/api/contatos
 Content-Type: application/json
 

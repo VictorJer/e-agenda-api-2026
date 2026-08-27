@@ -7,6 +7,7 @@ namespace eAgenda.WebApi.Features.Contatos;
 [Route("/api/contatos")]
 public sealed class ContatosController(ServicoContato servicoContato) : ControllerBase
 {
+
     [HttpGet]
     public ActionResult<List<ListarContatosDto>?> SelecionarTodos()
     {
@@ -14,6 +15,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         return StatusCode(200, listarContatos);
     }
+
 
     [HttpPost]
     public ActionResult Cadastrar(CadastrarContatoRequest req)
@@ -29,12 +31,38 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
         var result = servicoContato.Cadastrar(dto);
 
         if (result.IsFailed)
-            return BadRequest();
+        {
+            if (result.HasError(e =>
+                e.Message.Equals("Já existe um contato com este telefone.") ||
+                e.Message.Equals("Já existe um contato com este email.")
+            )
+            )
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    detail: result.Errors.First().Message,
+                    title: "Conflito",
+                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
+                );
+            }
+
+            ValidationProblemDetails problemDetails = new()
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = result.Errors.First().Message
+            };
+
+            return ValidationProblem(problemDetails);
+
+            // return BadRequest();
+        }
+
 
         var res = new CadastrarContatoResponse(result.Value);
 
         return CreatedAtAction(nameof(SelecionarPorId), new { id = result.Value }, res);
     }
+
 
     [HttpGet("{id:guid}")]
     public ActionResult<List<ListarContatosDto>?> SelecionarPorId(Guid id)
@@ -48,6 +76,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         return Ok(dto);
     }
+
 
     [HttpPut("{id:guid}")]
     public ActionResult<DetalhesContatoDto> Editar(Guid id, EditarContatoRequest req)
@@ -68,6 +97,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
 
         return CreatedAtAction(nameof(SelecionarPorId), new { id }, req);
     }
+
 
     [HttpDelete("{id:guid}")]
     public ActionResult Excluir(Guid id)

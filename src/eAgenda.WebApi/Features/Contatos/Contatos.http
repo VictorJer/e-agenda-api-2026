@@ -1,6 +1,9 @@
 
 @baseUrl = https://localhost:7022
 
+###
+@contatoId = {{cadastrarContato.response.body.$.id}}
+
 # @name cadastrarContato
 
 POST {{baseUrl}}/api/contatos
@@ -14,6 +17,7 @@ Content-Type: application/json
     "empresa": "Academia do Programador"
 }
 
+### Editar contato
 PUT {{baseUrl}}/api/contatos/{{contatoId}}
 Content-Type: application/json
 
@@ -25,11 +29,8 @@ Content-Type: application/json
     "empresa": "Academia do Programador Atualizada"
 }
 
-###
-@contatoId = {{cadastrarContato.response.body.$.id}}
 
 ### Listar Contato
-
 GET {{baseUrl}}/api/contatos
 
 ### Selecionar contato por ID

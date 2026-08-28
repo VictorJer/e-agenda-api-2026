@@ -79,10 +79,10 @@ public class ServicoContato : ServicoBase<Contato>
         Contato? contato = repositorioContato.SelecionarPorId(id);
 
         if (contato == null)
-            return Falha(string.Empty, "Contato não encontrado.");
+            return Falha(TipoErro.NaoEncontrado, string.Empty, "Contato não encontrado");
 
         if (PossuiCompromissosVinculados(id))
-            return Falha(string.Empty, "Não é possível excluir este contato, pois ele possui compromissos vinculados.");
+            return Falha(TipoErro.Conflito, string.Empty, "Não é possível excluir este contato, pois ele possui compromissos vinculados.");
 
         repositorioContato.Excluir(id);
 
@@ -102,7 +102,7 @@ public class ServicoContato : ServicoBase<Contato>
         Contato? contato = repositorioContato.SelecionarPorId(id);
 
         if (contato == null)
-            return Result.Fail("Contato não encontrado.");
+            return Falha(TipoErro.NaoEncontrado, string.Empty, "Contato não encontrado");
 
         return Result.Ok(new DetalhesContatoDto(
             contato.Id,

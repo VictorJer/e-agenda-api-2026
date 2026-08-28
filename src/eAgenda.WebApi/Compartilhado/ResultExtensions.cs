@@ -10,21 +10,35 @@ public static class ResultExtensions
     public static ActionResult ParaErroDaApi(this ControllerBase controller, ResultBase result)
     {
 
-        var tipoErro = result.Errors.First().Metadata[nameof(TipoErro)].ToString();
+        var tipoErro = (TipoErro)result.Errors.First().Metadata[nameof(TipoErro)];
 
-        if (result.HasError(e =>
-            e.Message.Equals("Já existe um contato com este telefone.") ||
-            e.Message.Equals("Já existe um contato com este email.")
-        )
-        )
+        if (tipoErro == TipoErro.NaoEncontrado)
         {
             return controller.Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                detail: result.Errors.First().Message,
-                title: "Conflito",
-                type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
+                    statusCode: StatusCodes.Status404NotFound,
+                    detail: result.Errors.First().Message,
+                    title: "Recurso não encontrado",
+                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/404"
             );
         }
+
+        if (tipoErro == TipoErro.Conflito)
+        {
+            if (result.HasError(e =>
+                e.Message.Equals("Já existe um contato com este telefone.") ||
+                e.Message.Equals("Já existe um contato com este email.")
+            )
+            )
+            {
+                return controller.Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    detail: result.Errors.First().Message,
+                    title: "Conflito",
+                    type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
+                );
+            }
+        }
+
 
         // Erros de cadastro
         var modelState = new ModelStateDictionary();

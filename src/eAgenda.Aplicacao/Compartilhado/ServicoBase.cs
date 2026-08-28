@@ -14,18 +14,20 @@ public abstract class ServicoBase<T> where T : EntidadeBase<T>
 {
     protected static Result ValidarEntidade(T entidade)
     {
-        List<string> erros = entidade.Validar();
+        IReadOnlyList<ErroValidacao> erros = entidade.Validar();
 
         if (erros.Count == 0)
             return Result.Ok();
 
         Result resultado = Result.Ok();
 
-        foreach (string erro in erros)
+        foreach (ErroValidacao erro in erros)
             resultado.WithError(CriarErro(TipoErro.Validacao, erro.Campo, erro.Mensagem));
 
         return resultado;
     }
+
+
 
     protected static Result Falha(string campo, string mensagem)
     {
@@ -54,3 +56,4 @@ public abstract class ServicoBase<T> where T : EntidadeBase<T>
             .WithMetadata("Campo", campo);
     }
 }
+

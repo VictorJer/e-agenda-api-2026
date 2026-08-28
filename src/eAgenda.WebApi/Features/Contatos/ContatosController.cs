@@ -48,7 +48,7 @@ public sealed class ContatosController(ServicoContato servicoContato) : Controll
         var result = servicoContato.SelecionarPorId(id);
 
         if (result.IsFailed)
-            return NotFound(id);
+            return this.ParaErroDaApi(result);
 
         var dto = result.Value;
 

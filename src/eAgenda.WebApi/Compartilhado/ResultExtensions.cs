@@ -7,7 +7,7 @@ namespace eAgenda.WebApi.Compartilhado;
 
 public static class ResultExtensions
 {
-    public static ActionResult ParaErroDaApi(this ControllerBase controller, ResultBase result)
+    public static ActionResult ValidationProblem(this ControllerBase controller, ResultBase result)
     {
 
         var tipoErro = (TipoErro)result.Errors.First().Metadata[nameof(TipoErro)];
@@ -37,6 +37,26 @@ public static class ResultExtensions
                     type: "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/409"
                 );
             }
+        }
+
+        if (tipoErro.Equals(TipoErro.Validacao))
+        {
+            var modelSatate = new ModelStateDictionary();
+
+            foreach (var erro in result.Errors)
+            {
+                var campo = erro.Metadata["Campo"].ToString()!;
+
+                modelSatate.AddModelError(campo, erro.Message);
+            }
+
+            ValidationProblemDetails problemDetail = new(modelSatate)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Requisição Invalida"
+            };
+
+            return controller.StatusCode(StatusCodes.Status400BadRequest, problemDetail);
         }
 
 

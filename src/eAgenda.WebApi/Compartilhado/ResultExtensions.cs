@@ -59,6 +59,29 @@ public static class ResultExtensions
             return controller.StatusCode(StatusCodes.Status400BadRequest, problemDetail);
         }
 
+        // if (tipoErro.Equals(TipoErro.Validacao))
+        // {
+        //     var modelState = new ModelStateDictionary();
+
+        //     foreach (var erro in result.Errors)
+        //     {
+        //         var campo = erro.Metadata["Campo"].ToString()!;
+
+        //         modelState.AddModelError(campo, erro.Message);
+        //     }
+
+        //     ValidationProblemDetails problemDetails = new(modelState)
+        //     {
+        //         Status = StatusCodes.Status400BadRequest,
+        //         Title = "Requisição Inválida",
+        //         Type = ProblemDetailsTypes.BadRequest
+        //     };
+
+        //     AdicionarTraceId(problemDetails, controller);
+
+        //     return controller.ValidationProblem(problemDetails);
+        // }
+
 
         // Erros de cadastro
         var modelState = new ModelStateDictionary();
